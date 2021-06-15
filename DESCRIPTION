@@ -18,7 +18,6 @@ Imports:
   ggplotify,
   ggpmisc,
   ggprism,
-  ggtree,
   GO.db,
   patchwork,
   reshape2,

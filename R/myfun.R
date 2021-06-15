@@ -1,5 +1,4 @@
 ## Functions of WGCNA shiny App
-suppressMessages(library(ggtree))
 suppressMessages(library(shinyjs))
 suppressMessages(library(dashboardthemes))
 suppressMessages(library(shinydashboard))
@@ -152,7 +151,6 @@ getdatExpr2 = function(datExpr,GeneNumCut,cutmethod){
 #' @return A list contains Tree file, and tree plot.
 #' @references https://www.jianshu.com/p/e9cc3f43441d
 #' @export
-#' @import ggtree
 #' @import ape
 #' @import tidyverse
 #' @example
@@ -164,12 +162,12 @@ getsampleTree = function(datExpr,layout = "circular"){
   nSamples = nrow(datExpr)
   sampleTree = hclust(dist(datExpr), method = "average")
   treenew= as.phylo(sampleTree)
-  anno = data.frame(lab = treenew$tip.label,
-                    group = factor(gsub(".$","",treenew$tip.label),levels = unique(gsub(".$","",treenew$tip.label))))
-  p =ggtree(tr = treenew,layout = layout)
-  p2 = p %<+% anno +geom_tiplab(aes(color=group))+theme(legend.position = "")
+  # anno = data.frame(lab = treenew$tip.label,
+  #                   group = factor(gsub(".$","",treenew$tip.label),levels = unique(gsub(".$","",treenew$tip.label))))
+  # p =ggtree(tr = treenew,layout = layout)
+  # p2 = p %<+% anno +geom_tiplab(aes(color=group))+theme(legend.position = "")
   out = list(tree = treenew,
-             plot = p2,
+             sampleTree = sampleTree,
              nGenes = nGenes,
              nSamples = nSamples)
   return(out)
