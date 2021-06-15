@@ -1,0 +1,32 @@
+Package: ShinyWGCNA
+Type: Package
+Title: My own function for WGCNA shiny app
+Version: 0.1.0
+Author: Shawn Wang
+Maintainer: Shawn Wang <shawndrive2019@126.com>
+Description: Have fun！WGCNA analysis with shinyApp.
+Depends:  R (>= 3.1.0)
+License: MIT
+Encoding: UTF-8
+LazyData: true
+Imports: 
+  ape,
+  dashboardthemes,
+  DESeq2,
+  DT,
+  edgeR,
+  ggplotify,
+  ggpmisc,
+  ggprism,
+  ggtree,
+  GO.db,
+  patchwork,
+  reshape2,
+  shiny,
+  shinydashboard,
+  shinyjqui,
+  shinyjs,
+  shinythemes,
+  stringr,
+  tidyverse,
+  WGCNA
