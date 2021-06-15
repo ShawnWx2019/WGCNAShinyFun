@@ -162,8 +162,6 @@ getsampleTree = function(datExpr,layout = "circular"){
   ## sample cluster based on expression values
   nGenes = ncol(datExpr)
   nSamples = nrow(datExpr)
-  # assign("nGenes",value = nGenes, envir = globalenv())
-  # assign("nSamples",value = nSamples, envir = globalenv())
   sampleTree = hclust(dist(datExpr), method = "average")
   treenew= as.phylo(sampleTree)
   anno = data.frame(lab = treenew$tip.label,
@@ -173,7 +171,7 @@ getsampleTree = function(datExpr,layout = "circular"){
   out = list(tree = treenew,
              plot = p2,
              nGenes = nGenes,
-             nSample = nSample)
+             nSamples = nSamples)
   return(out)
 }
 
@@ -325,6 +323,7 @@ ggscaleFreePlot = function (connectivity, nBreaks = 10, truncated = FALSE, remov
 #' @author Shawn Wang <url\{http://www.shawnlearnbioinfo.top}>
 
 powertest = function(power.test,datExpr,nGenes){
+  ## reference: https://www.jianshu.com/p/25905a905086 jiashu Author: sxzt
   softPower <- power.test
   adjacency = adjacency(datExpr = datExpr, power = softPower)
   # convert adj 2 TOM
@@ -423,6 +422,7 @@ getMt = function(phenotype,MEs_col,nSamples,moduleColors,datExpr){
              modTraitP = modTraitP,
              textMatrix = textMatrix)
   return(out)
+
 }
 
 #' Get kME.
@@ -531,7 +531,6 @@ getverboseplot = function(datExpr,module,pheno,traitData,moduleColors,geneModule
     ggtitle(paste("Module membership vs. gene significance\n","cor=",cor," ,p",corp,sep = ""))+
     theme_bw()+
     theme_prism(border = T)
-
 }
 
 #' Module heatmap.
