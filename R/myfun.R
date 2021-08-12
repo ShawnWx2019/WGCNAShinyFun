@@ -413,16 +413,15 @@ getMt = function(phenotype,MEs_col,nSamples,moduleColors,datExpr){
   MEs = orderMEs(MEs0)
   modTraitCor = cor(MEs, traitData , use = "p")
   modTraitP = corPvalueStudent(modTraitCor, nSamples)
-  mod_cor_R2 = %>% 
-  mutate(across(where(is.numeric), round, 2)) %>% 
-  mutate_if(is.numeric,as.character)
+  mod_cor_R2 = modTraitCor %>%
+    mutate(across(where(is.numeric), round, 2)) %>%
+    mutate_if(is.numeric,as.character)
   tmp3 <- mod_cor_R2
-
   for (i in 1:nrow(mod_cor_R2)) {
     for (j in 1:ncol(mod_cor_R2)) {
-      x3[i,j] = paste0(mod_cor_R2[i,j],"\n(",modTraitP[i,j],")")
+      tmp3[i,j] = paste0(mod_cor_R2[i,j],"\n(",modTraitP[i,j],")")
+    }
   }
-}
 
   out = list(modTraitCor = modTraitCor,
              modTraitP = modTraitP,
