@@ -413,13 +413,20 @@ getMt = function(phenotype,MEs_col,nSamples,moduleColors,datExpr){
   MEs = orderMEs(MEs0)
   modTraitCor = cor(MEs, traitData , use = "p")
   modTraitP = corPvalueStudent(modTraitCor, nSamples)
-  mod_cor_R2 = modTraitCor %>%
-    mutate(across(where(is.numeric), round, 2)) %>%
+  ## bugfix make mod cor and mod p as df
+  df_modTraitCor = as.data.frame(modTraitCor)
+  df_modTraitP = as.data.frame(modTraitP)
+  mod_cor_R2 = df_modTraitCor %>%
+    mutate(across(where(is.numeric), signif, 2)) %>%
     mutate_if(is.numeric,as.character)
+  mod_P_R2 = df_modTraitP %>%
+    mutate(across(where(is.numeric), signif, 2)) %>%
+    mutate_if(is.numeric,as.character)
+  ## for heatmap cluster
   tmp3 <- mod_cor_R2
   for (i in 1:nrow(mod_cor_R2)) {
     for (j in 1:ncol(mod_cor_R2)) {
-      tmp3[i,j] = paste0(mod_cor_R2[i,j],"\n(",modTraitP[i,j],")")
+      tmp3[i,j] = paste0(mod_cor_R2[i,j],"\n(",mod_P_R2[i,j],")")
     }
   }
 
