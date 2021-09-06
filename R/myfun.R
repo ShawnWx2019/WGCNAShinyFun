@@ -620,15 +620,15 @@ hubgenes = function(datExpr,mdl,power,trt,KME,GS.cut,kME.cut,datTrait){
   GS.df = data.frame(GeneID = colnames(datExpr),
                      GS = GS1)
   GS2=abs(GS1)
-  ## KME
+  ## MM
   kME.mod = KME.clean %>%
     select(mdl)
   kME.mod.df = data.frame(GeneID = rownames(kME.mod),
                           kME = kME.mod[,1])
   ## judge
-  hub2 = abs(kME.mod) > kME.cut & GS2 > kME.cut
+  hub2 = abs(kME.mod) > kME.cut & GS2 > GS.cut
   hub2.num = table(hub2)
-  print(paste0("kME and GS method selected out " ,as.numeric(hub2.num[2])," hub genes."))
+  print(paste0("MM and GS method selected out " ,as.numeric(hub2.num[2])," hub genes."))
   colnames(hub2) = "judge"
   hub3 <- hub2 %>%as.data.frame() %>%  filter(judge == 'TRUE') %>%
     rownames_to_column(var = "GeneID") %>%
