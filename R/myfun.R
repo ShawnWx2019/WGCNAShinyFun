@@ -354,7 +354,7 @@ powertest = function(power.test,datExpr,nGenes){
 #' @param power power you select after scale-free test.
 #' @param minModuleSize minimal size of module.
 #' @param mergeCutHeight Dynamic cutting height, clusters less than this value will be merged
-#' @param nGenes number of select genes
+#' @param maxBlocksize number of select genes
 #' @return A list contains multiple parameter for next step.
 #' @references https://www.jianshu.com/p/f0409a045dab
 #' @export
@@ -365,9 +365,9 @@ powertest = function(power.test,datExpr,nGenes){
 #' @author Shawn Wang <url\{http://www.shawnlearnbioinfo.top}>
 
 
-getnetwork = function(datExpr,power,minModuleSize,mergeCutHeight,nGenes){
+getnetwork = function(datExpr,power,minModuleSize,mergeCutHeight,maxBlocksize){
   cor <- WGCNA::cor
-  net = blockwiseModules(datExpr, power = power, maxBlockSize = nGenes,
+  net = blockwiseModules(datExpr, power = power, maxBlockSize = maxBlocksize,
                          TOMType = "unsigned", minModuleSize = minModuleSize,
                          reassignThreshold = 0, mergeCutHeight = mergeCutHeight,
                          numericLabels = TRUE, pamRespectsDendro = FALSE,
