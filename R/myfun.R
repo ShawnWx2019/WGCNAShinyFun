@@ -188,6 +188,7 @@ getsampleTree = function(datExpr,layout = "circular"){
 #' @example
 #' @author Shawn Wang <url\{http://www.shawnlearnbioinfo.top}>
 getpower = function(datExpr,rscut){
+  nSamples = nrow(datExpr)
   type = 'unsigned'
   powers = c(c(1:10), seq(from = 12, to=30, by=2))
   sft = pickSoftThreshold(datExpr, powerVector=powers, RsquaredCut = rscut,
