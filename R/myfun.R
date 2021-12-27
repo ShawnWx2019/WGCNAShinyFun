@@ -46,7 +46,7 @@ getdatExpr = function(rawdata,RcCutoff,samplePerc,datatype,method){
     # colData <- data.frame(row.names = colnames(rawcount), condition)
     ## remove background noise
     x <- rawcount[apply(rawcount,1,function(x) sum(x > RcCutoff) > (samplePerc*ncol(rawcount))),]
-
+    x <- as.matrix(x) ## convert as matrix
     ## readcount standardization by DESeq2
     # dds <- DESeqDataSetFromMatrix(x, colData, design = ~ condition)
     # dds <- DESeq(dds)
@@ -58,12 +58,14 @@ getdatExpr = function(rawdata,RcCutoff,samplePerc,datatype,method){
   ## func2 count 2 cpm
   countCPM = function(rawcount, RcCutoff,samplePerc) {
     x <- rawcount[apply(rawcount,1,function(x) sum(x > RcCutoff) > (samplePerc*ncol(rawcount))),]
+    x <- as.matrix(x)
     dx  <- log10(edgeR::cpm(x)+1)
     return(dx)
   }
   ## raw fpkm filter
   fpkmfilter = function(rawcount, RcCutoff,samplePerc) {
     x <- rawcount[apply(rawcount,1,function(x) sum(x > RcCutoff) > (samplePerc*ncol(rawcount))),]
+    x <- as.matrix(x)
     dx  <- x
     return(dx)
   }
