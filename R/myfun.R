@@ -71,6 +71,7 @@ getdatExpr = function(rawdata,RcCutoff,samplePerc,datatype,method){
   ## log fpkm filter
   lgfpkmfilter = function(rawcount, RcCutoff,samplePerc) {
     x <- rawcount[apply(rawcount,1,function(x) sum(x > RcCutoff) > (samplePerc*ncol(rawcount))),]
+    x = as.matrix(x)
     dx  <- log10(x+1)
     return(dx)
   }
