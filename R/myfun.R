@@ -39,19 +39,20 @@ getdatExpr = function(rawdata,RcCutoff,samplePerc,datatype,method){
   rawdata <- data.frame(row.names = as.character(rawdata[,1]),
                         rawdata[,-1])
   countvarTran = function(rawcount,RcCutoff,samplePerc) {
-    samnum <- ncol(rawcount)
-    casenum = ceiling(samnum/2)
-    controlnum = samnum - casenum
-    condition <- factor(c(rep("case",casenum),rep("control",controlnum)),levels = c("case","control"))
-    colData <- data.frame(row.names = colnames(rawcount), condition)
+    # samnum <- ncol(rawcount)
+    # casenum = ceiling(samnum/2)
+    # controlnum = samnum - casenum
+    # condition <- factor(c(rep("case",casenum),rep("control",controlnum)),levels = c("case","control"))
+    # colData <- data.frame(row.names = colnames(rawcount), condition)
     ## remove background noise
     x <- rawcount[apply(rawcount,1,function(x) sum(x > RcCutoff) > (samplePerc*ncol(rawcount))),]
 
     ## readcount standardization by DESeq2
-    dds <- DESeqDataSetFromMatrix(x, colData, design = ~ condition)
-    dds <- DESeq(dds)
-    vsd <- assay(varianceStabilizingTransformation(dds))
-    dx = data.frame(vsd)
+    # dds <- DESeqDataSetFromMatrix(x, colData, design = ~ condition)
+    # dds <- DESeq(dds)
+    # vsd <- assay(varianceStabilizingTransformation(dds))
+    # dx = data.frame(vsd)
+    dx = vst(x)
     return(dx)
   }
   ## func2 count 2 cpm
