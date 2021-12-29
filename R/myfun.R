@@ -52,7 +52,7 @@ getdatExpr = function(rawdata,RcCutoff,samplePerc,datatype,method){
     # dds <- DESeq(dds)
     # vsd <- assay(varianceStabilizingTransformation(dds))
     # dx = data.frame(vsd)
-    dx = vst(x)
+    dx = varianceStabilizingTransformation(x, blind = TRUE)
     return(dx)
   }
   ## func2 count 2 cpm
