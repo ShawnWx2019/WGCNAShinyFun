@@ -606,46 +606,47 @@ moduleheatmap = function(datExpr,MEs,which.module,moduleColors){
 #' @param GS.cut cutoff Gene significance.
 #' @param kME.cut cutoff kME.
 #' @param datTrait trait matrix.
+#' @param g2m gene2module.
 #' @return A list of hubgenes.
 #' @export
 #' @import WGCNA
-#' @import tidyverse
+#' @import dplyr
+#' @import tidyr
 #' @import stringr
 #' @example
 #' @author Shawn Wang <url\{http://www.shawnlearnbioinfo.top}>
-hubgenes = function(datExpr,mdl,power,trt,KME,GS.cut,kME.cut,datTrait){
-  KME.clean = KME
-  colnames(KME.clean) = gsub("MM.","",colnames(KME))
-  hub1 = chooseTopHubInEachModule(datExpr = datExpr,colorh = mdl,power = power,type = "unsigned")
-  ## GS calculate
-  which.module = mdl
-  which.trait = datTrait %>%
-    select(trt);
-  GS1 = as.numeric(cor(which.trait,datExpr, use="p"))
-  GS.df = data.frame(GeneID = colnames(datExpr),
-                     GS = GS1)
-  GS2=abs(GS1)
-  ## MM
-  kME.mod = KME.clean %>%
-    select(mdl)
-  kME.mod.df = data.frame(GeneID = rownames(kME.mod),
-                          kME = kME.mod[,1])
-  ## judge
-  hub2 = abs(kME.mod) > kME.cut & GS2 > GS.cut
-  hub2.num = table(hub2)
-  print(paste0("MM and GS method selected out " ,as.numeric(hub2.num[2])," hub genes."))
-  colnames(hub2) = "judge"
-  hub3 <- hub2 %>%as.data.frame() %>%  filter(judge == 'TRUE') %>%
-    rownames_to_column(var = "GeneID") %>%
-    left_join(.,GS.df,by = "GeneID") %>%
-    left_join(.,kME.mod.df,by = "GeneID")
-  hub1 = data.frame(GeneID = as.character(hub1)) %>%
-    left_join(.,GS.df,by = "GeneID") %>%
-    left_join(.,kME.mod.df,by = "GeneID")
+hubgenes = function(datExpr,mdl,power,trt,KME,GS.cut,kME.cut,datTrait,g2m) {
+  ## changenames
+  colnames(KME) = gsub("MM.","",colnames(KME))
+  ## hubgene by wgcna
+  hubs = chooseTopHubInEachModule(datExpr = datExpr, colorh = net$moduleColors,
+                                  power = power, type = "unsigned")
+  hub_mdl = hubs[mdl]
+  ## calculate GS and MM
+  MM_vs_KME = KME %>%
+    rownames_to_column("gene_id") %>%
+    as_tibble %>%
+    mutate(
+      GS = as.numeric(cor(datTrait %>% select(trt),datExpr,use = "p"))
+    ) %>%
+    rename("MM" = mdl) %>%
+    select(gene_id,MM,GS) %>%
+    mutate(
+      abs_MM = abs(MM),
+      abs_GS = abs(GS)
+    ) %>%
+    inner_join(.,g2m,by = c("gene_id" = "GID")) %>%
+    filter(Module == mdl) %>%
+    dplyr::arrange(desc(abs_MM))
 
+  hub3 = MM_vs_KME %>%
+    filter(abs_MM >= kME.cut & abs_GS >= GS.cut)
 
-  out = list(hub1 = hub1,
-             hub3 = hub3)
+  hub1 = data.frame(GeneID = as.character(hub_mdl)) %>% left_join(.,MM_vs_KME, by = c("GeneID" = "gene_id") )
+  hub_out = list(
+    hub1 = hub1,
+    hub3 = hub3
+  )
 }
 
 
