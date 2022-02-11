@@ -619,7 +619,7 @@ hubgenes = function(datExpr,mdl,power,trt,KME,GS.cut,kME.cut,datTrait,g2m) {
   ## changenames
   colnames(KME) = gsub("MM.","",colnames(KME))
   ## hubgene by wgcna
-  hubs = chooseTopHubInEachModule(datExpr = datExpr, colorh = net$moduleColors,
+  hubs = chooseTopHubInEachModule(datExpr = datExpr, colorh = g2m,
                                   power = power, type = "unsigned")
   hub_mdl = hubs[mdl]
   ## calculate GS and MM
