@@ -873,7 +873,8 @@ iterative_out = function(rawMat,tbl,method,KME_cutoff) {
     message("method2 start")
     retain_index =
       tbl1 %>%
-      filter(value >= KME_cutoff & module != 'grey') %>%
+      filter(module != 'grey') %>%
+      filter(value >= KME_cutoff) %>%
       select(GID) %>%
       distinct() %>%
       pull(GID)
