@@ -847,6 +847,7 @@ mv_outlier = function(x,y) {
 #' @param tbl dataframe KME table
 #' @param method numeric method1 or method2.
 #' @param KME_cutoff numeric kme cutoff.
+#' @param g2m dataframe label each gene with module tag.
 #' @return A list with retain and removed gene expression data.
 #' @references https://www.jianshu.com/p/f0409a045dab
 #' @export
@@ -854,40 +855,41 @@ mv_outlier = function(x,y) {
 #' @import tidyr
 #' @example
 #' @author Shawn Wang <url\{http://www.shawnlearnbioinfo.top}>
-iterative_out = function(rawMat,tbl,method,KME_cutoff) {
+iterative_out = function(g2m,rawMat,tbl,method,KME_cutoff) {
   message("start analysis")
-  tbl1 <-
+  index <-
     tbl %>% as.data.frame() %>%
     rownames_to_column("GID") %>%
-    pivot_longer(!GID,names_to = "module",values_to = "value")
+    pivot_longer(!GID,names_to = "module",values_to = "value") %>%
+    filter(value >= KME_cutoff) %>%
+    select(GID) %>%
+    distinct() %>%
+    pull(GID)
   colnames(rawMat)[1]="GID"
+
   if (method == 1) {
     message("method1 start")
-    retain_index =
-      tbl1 %>%
-      filter(value >= KME_cutoff) %>%
-      select(GID) %>%
-      distinct() %>%
-      pull(GID)
+    retain_index <- index
   } else {
     message("method2 start")
-    retain_index =
-      tbl1 %>%
-      filter(module != 'MM.grey') %>%
-      filter(value >= KME_cutoff) %>%
-      select(GID) %>%
-      distinct() %>%
-      pull(GID)
+    retain_index = inner_join(
+        data.frame(GID = index),g2m %>% filter(Module != "grey"),by = "GID"
+      ) %>% pull(GID)
   }
   index_all = rownames(tbl)
+
   remove_index = setdiff(index_all,retain_index)
+
   tbl_retain =
     inner_join(data.frame(GID = retain_index),rawMat,by = "GID")
+
   tbl_remove =
     inner_join(data.frame(GID = remove_index),rawMat,by = "GID")
+
   out = list(
     retain = tbl_retain,
     remove = tbl_remove
   )
+
   return(out)
 }
