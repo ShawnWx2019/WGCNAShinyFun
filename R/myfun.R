@@ -820,3 +820,73 @@ cytoscapeout = function(
   )
   return(cyt)
 }
+
+
+#' remove outlier
+#' module membership.
+#' @param x dataframe original expression matrix
+#' @param y character outlier samples.
+#' @return A dataframe.
+#' @references https://www.jianshu.com/p/f0409a045dab
+#' @export
+#' @import dplyr
+#' @example
+#' @author Shawn Wang <url\{http://www.shawnlearnbioinfo.top}>
+mv_outlier = function(x,y) {
+  if (is.null(y)) {return(x); print("no sample were removed.")}
+  out =
+    x %>%
+    select(-as.character(y))
+  return(out)
+}
+
+
+#' remove outlier
+#' module membership.
+#' @param rawMat dataframe original expression matrix
+#' @param tbl dataframe KME table
+#' @param method numeric method1 or method2.
+#' @param KME_cutoff numeric kme cutoff.
+#' @return A list with retain and removed gene expression data.
+#' @references https://www.jianshu.com/p/f0409a045dab
+#' @export
+#' @import dplyr
+#' @import tidyr
+#' @example
+#' @author Shawn Wang <url\{http://www.shawnlearnbioinfo.top}>
+iterative_out = function(rawMat,tbl,method,KME_cutoff) {
+  message("start analysis")
+  tbl1 <-
+    tbl %>% as.data.frame() %>%
+    rownames_to_column("GID") %>%
+    pivot_longer(!GID,names_to = "module",values_to = "value")
+  colnames(rawMat)[1]="GID"
+  if (method == 1) {
+    message("method1 start")
+    retain_index =
+      tbl1 %>%
+      filter(value >= KME_cutoff) %>%
+      select(GID) %>%
+      distinct() %>%
+      pull(GID)
+  } else {
+    message("method2 start")
+    retain_index =
+      tbl1 %>%
+      filter(value >= KME_cutoff & module != 'grey') %>%
+      select(GID) %>%
+      distinct() %>%
+      pull(GID)
+  }
+  index_all = rownames(tbl)
+  remove_index = setdiff(index_all,retain_index)
+  tbl_retain =
+    inner_join(data.frame(GID = retain_index),rawMat,by = "GID")
+  tbl_remove =
+    inner_join(data.frame(GID = remove_index),rawMat,by = "GID")
+  out = list(
+    retain = tbl_retain,
+    remove = tbl_remove
+  )
+  return(out)
+}
