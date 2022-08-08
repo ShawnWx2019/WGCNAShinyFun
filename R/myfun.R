@@ -412,7 +412,7 @@ getnetwork = function(datExpr,power,minModuleSize,mergeCutHeight,maxBlocksize){
 #' @import tidyverse
 #' @example
 #' @author Shawn Wang <url\{http://www.shawnlearnbioinfo.top}>
-getMt = function(phenotype,MEs_col,nSamples,moduleColors,datExpr){
+getMt = function(phenotype,nSamples,moduleColors,datExpr){
   traitData <- phenotype
   MEs0 = moduleEigengenes(datExpr, moduleColors)$eigengenes
   MEs = orderMEs(MEs0)
