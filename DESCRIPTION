@@ -1,7 +1,7 @@
 Package: ShinyWGCNA
 Type: Package
 Title: My own function for WGCNA shiny app
-Version: 0.1.0
+Version: 0.1.2
 Author: Shawn Wang
 Maintainer: Shawn Wang <shawndrive2019@126.com>
 Description: Have fun！WGCNA analysis with shinyApp.
