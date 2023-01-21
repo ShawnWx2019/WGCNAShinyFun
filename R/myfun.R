@@ -7,6 +7,7 @@ suppressMessages(library(shiny))
 suppressMessages(library(DESeq2))
 suppressMessages(library(ggplot2))
 suppressMessages(library(dplyr))
+suppressMessages(library(tibble))
 suppressMessages(library(WGCNA))
 suppressMessages(library(stringr))
 suppressMessages(library(ape))
@@ -29,74 +30,91 @@ suppressMessages(library(shinyjqui))
 #' @references https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/faq.html
 #' @export
 #' @import DESeq2
-#' @import edgeR
+#' @import tibble
 #' @import dplyr
 #' @example
 #' @author Shawn Wang <url\{http://www.shawnlearnbioinfo.top}>
-
 getdatExpr = function(rawdata,RcCutoff,samplePerc,datatype,method){
-  ## Avoid numeric id
-  rawdata <- data.frame(row.names = as.character(rawdata[,1]),
-                        rawdata[,-1])
-  countvarTran = function(rawcount,RcCutoff,samplePerc) {
-    # samnum <- ncol(rawcount)
-    # casenum = ceiling(samnum/2)
-    # controlnum = samnum - casenum
-    # condition <- factor(c(rep("case",casenum),rep("control",controlnum)),levels = c("case","control"))
-    # colData <- data.frame(row.names = colnames(rawcount), condition)
-    ## remove background noise
-    x <- rawcount[apply(rawcount,1,function(x) sum(x > RcCutoff) > (samplePerc*ncol(rawcount))),]
-    x <- as.matrix(x) ## convert as matrix
-    ## readcount standardization by DESeq2
-    # dds <- DESeqDataSetFromMatrix(x, colData, design = ~ condition)
-    # dds <- DESeq(dds)
-    # vsd <- assay(varianceStabilizingTransformation(dds))
-    # dx = data.frame(vsd)
-    dx = varianceStabilizingTransformation(x, blind = TRUE)
-    return(dx)
-  }
-  ## func2 count 2 cpm
-  countCPM = function(rawcount, RcCutoff,samplePerc) {
-    x <- rawcount[apply(rawcount,1,function(x) sum(x > RcCutoff) > (samplePerc*ncol(rawcount))),]
-    x <- as.matrix(x)
-    dx  <- log10(edgeR::cpm(x)+1)
-    return(dx)
-  }
-  ## raw fpkm filter
-  fpkmfilter = function(rawcount, RcCutoff,samplePerc) {
-    x <- rawcount[apply(rawcount,1,function(x) sum(x > RcCutoff) > (samplePerc*ncol(rawcount))),]
-    x <- as.matrix(x)
-    dx  <- x
-    return(dx)
-  }
-
-  ## log fpkm filter
-  lgfpkmfilter = function(rawcount, RcCutoff,samplePerc) {
-    x <- rawcount[apply(rawcount,1,function(x) sum(x > RcCutoff) > (samplePerc*ncol(rawcount))),]
-    x = as.matrix(x)
-    dx  <- log10(x+1)
-    return(dx)
-  }
-  ## dx final
+  ##> Noise filtering
+  x <-
+    rawdata %>%
+    setNames(c("id",colnames(.)[-1])) %>%
+    mutate(id = as.character(id)) %>% ## aviod numeric columns.
+    column_to_rownames("id") %>%
+    filter(
+      rowSums(. > RcCutoff) > (samplePerc*ncol(.))
+    )
   if (
-    datatype == "count" & method == "varianceStabilizingTransformation"
+    datatype == "expected count"
   ) {
-    dx = countvarTran(rawcount = rawdata,RcCutoff = RcCutoff, samplePerc = samplePerc)
-  } else if (
-    datatype == "count" & method == "lgcpm"
-  ) {
-    dx = countCPM(rawcount = rawdata,RcCutoff = RcCutoff, samplePerc = samplePerc)
-  } else if (
-    datatype == "FPKM" & method == "rawFPKM"
-  ) {
-    dx = fpkmfilter(rawcount = rawdata,RcCutoff = RcCutoff, samplePerc = samplePerc)
-  } else if (
-    datatype == "FPKM" & method == "lgFPKM"
-  ) {
-    dx = lgfpkmfilter(rawcount = rawdata,RcCutoff = RcCutoff, samplePerc = samplePerc)
+    x <- x %>%
+      mutate_if(is.numeric,ceiling)
+  }
+  ##> Normalization
+  if(method == "vst") {
+    dx <- x %>%
+      as.matrix() %>%
+      varianceStabilizingTransformation(., blind = TRUE)
+  } else if (method == "logarithm") {
+    if (datatype == "normalized count") {
+      dx <- log10(x+1)
+    } else {
+      dx <- log10(x)
+    }
+  } else if (method == "raw") {
+    dx <- x
+  } else {
+    return()
   }
   return(dx)
 }
+# getdatExpr = function(rawdata,RcCutoff,samplePerc,datatype,method){
+#   ## Avoid numeric id
+#   rawdata <- data.frame(row.names = as.character(rawdata[,1]),
+#                         rawdata[,-1])
+#   countvarTran = function(rawcount,RcCutoff,samplePerc) {
+#     x <- rawcount[apply(rawcount,1,function(x) sum(x > RcCutoff) > (samplePerc*ncol(rawcount))),]
+#     x <- as.matrix(x) ## convert as matrix
+#     ## readcount standardization by DESeq2
+#     dx = varianceStabilizingTransformation(x, blind = TRUE)
+#     return(dx)
+#   }
+#
+#   ## raw fpkm filter
+#   fpkmfilter = function(rawcount, RcCutoff,samplePerc) {
+#     x <- rawcount[apply(rawcount,1,function(x) sum(x > RcCutoff) > (samplePerc*ncol(rawcount))),]
+#     x <- as.matrix(x)
+#     dx  <- x
+#     return(dx)
+#   }
+#
+#   ## log fpkm filter
+#   lgfpkmfilter = function(rawcount, RcCutoff,samplePerc) {
+#     x <- rawcount[apply(rawcount,1,function(x) sum(x > RcCutoff) > (samplePerc*ncol(rawcount))),]
+#     x = as.matrix(x)
+#     dx  <- log10(x+1)
+#     return(dx)
+#   }
+#   ## dx final
+#   if (
+#     datatype == "count" & method == "varianceStabilizingTransformation"
+#   ) {
+#     dx = countvarTran(rawcount = rawdata,RcCutoff = RcCutoff, samplePerc = samplePerc)
+#   } else if (
+#     datatype == "count" & method == "lgcpm"
+#   ) {
+#     dx = countCPM(rawcount = rawdata,RcCutoff = RcCutoff, samplePerc = samplePerc)
+#   } else if (
+#     datatype == "FPKM" & method == "rawFPKM"
+#   ) {
+#     dx = fpkmfilter(rawcount = rawdata,RcCutoff = RcCutoff, samplePerc = samplePerc)
+#   } else if (
+#     datatype == "FPKM" & method == "lgFPKM"
+#   ) {
+#     dx = lgfpkmfilter(rawcount = rawdata,RcCutoff = RcCutoff, samplePerc = samplePerc)
+#   }
+#   return(dx)
+# }
 
 #' Data cleaning of expression matrix step2.
 #' Follow the rules of https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/faq.html.
