@@ -21,11 +21,11 @@ suppressMessages(library(tidyverse))
 suppressMessages(library(shinyjqui))
 #' Data cleaning of expression matrix.
 #' Follow the rules of https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/faq.html.
-#' @param rawdata Input expression data, such as FPKM, CPM, TPM or read count.
+#' @param rawdata Input expression data, such as FPKM, CPM, TPM or read count, expected count, peak area or protein abundance.
 #' @param RcCutoff Cutoff of rawdata, if readcount or FPKM less than this "RcCutoff" in x samples, it should be treat as the noise.
 #' @param samplePerc If readcount or FPKM less than RcCutoff "insamplePerc"  samples, it should be treat as the noise.
-#' @param datatype Data type of your input rawdata. readcount or FPKM. CPM,TPM,RPM and RPKM = "FPKM"
-#' @param method Conversion method of input raw data. readcount: "varianceStabilizingTransformation" or "lgcpm", FPKM: "rawFPKM" or "lgFPKM"
+#' @param datatype Data type of your input rawdata. "count", "expected count". "normalized count", "peak area" or "protein abundance"
+#' @param method Conversion method of input raw data. "vst" for count and expected count, "raw" and "logarithm" for other datatype.
 #' @return dx a matrix like datExpr
 #' @references https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/faq.html
 #' @export
@@ -68,53 +68,7 @@ getdatExpr = function(rawdata,RcCutoff,samplePerc,datatype,method){
   }
   return(dx)
 }
-# getdatExpr = function(rawdata,RcCutoff,samplePerc,datatype,method){
-#   ## Avoid numeric id
-#   rawdata <- data.frame(row.names = as.character(rawdata[,1]),
-#                         rawdata[,-1])
-#   countvarTran = function(rawcount,RcCutoff,samplePerc) {
-#     x <- rawcount[apply(rawcount,1,function(x) sum(x > RcCutoff) > (samplePerc*ncol(rawcount))),]
-#     x <- as.matrix(x) ## convert as matrix
-#     ## readcount standardization by DESeq2
-#     dx = varianceStabilizingTransformation(x, blind = TRUE)
-#     return(dx)
-#   }
-#
-#   ## raw fpkm filter
-#   fpkmfilter = function(rawcount, RcCutoff,samplePerc) {
-#     x <- rawcount[apply(rawcount,1,function(x) sum(x > RcCutoff) > (samplePerc*ncol(rawcount))),]
-#     x <- as.matrix(x)
-#     dx  <- x
-#     return(dx)
-#   }
-#
-#   ## log fpkm filter
-#   lgfpkmfilter = function(rawcount, RcCutoff,samplePerc) {
-#     x <- rawcount[apply(rawcount,1,function(x) sum(x > RcCutoff) > (samplePerc*ncol(rawcount))),]
-#     x = as.matrix(x)
-#     dx  <- log10(x+1)
-#     return(dx)
-#   }
-#   ## dx final
-#   if (
-#     datatype == "count" & method == "varianceStabilizingTransformation"
-#   ) {
-#     dx = countvarTran(rawcount = rawdata,RcCutoff = RcCutoff, samplePerc = samplePerc)
-#   } else if (
-#     datatype == "count" & method == "lgcpm"
-#   ) {
-#     dx = countCPM(rawcount = rawdata,RcCutoff = RcCutoff, samplePerc = samplePerc)
-#   } else if (
-#     datatype == "FPKM" & method == "rawFPKM"
-#   ) {
-#     dx = fpkmfilter(rawcount = rawdata,RcCutoff = RcCutoff, samplePerc = samplePerc)
-#   } else if (
-#     datatype == "FPKM" & method == "lgFPKM"
-#   ) {
-#     dx = lgfpkmfilter(rawcount = rawdata,RcCutoff = RcCutoff, samplePerc = samplePerc)
-#   }
-#   return(dx)
-# }
+
 
 #' Data cleaning of expression matrix step2.
 #' Follow the rules of https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/Rpackages/WGCNA/faq.html.
