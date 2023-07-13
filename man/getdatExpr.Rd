@@ -8,15 +8,15 @@ Follow the rules of https://horvath.genetics.ucla.edu/html/CoexpressionNetwork/R
 getdatExpr(rawdata, RcCutoff, samplePerc, datatype, method)
 }
 \arguments{
-\item{rawdata}{Input expression data, such as FPKM, CPM, TPM or read count.}
+\item{rawdata}{Input expression data, such as FPKM, CPM, TPM or read count, expected count, peak area or protein abundance.}
 
 \item{RcCutoff}{Cutoff of rawdata, if readcount or FPKM less than this "RcCutoff" in x samples, it should be treat as the noise.}
 
 \item{samplePerc}{If readcount or FPKM less than RcCutoff "insamplePerc"  samples, it should be treat as the noise.}
 
-\item{datatype}{Data type of your input rawdata. readcount or FPKM. CPM,TPM,RPM and RPKM = "FPKM"}
+\item{datatype}{Data type of your input rawdata. "count", "expected count". "normalized count", "peak area" or "protein abundance"}
 
-\item{method}{Conversion method of input raw data. readcount: "varianceStabilizingTransformation" or "lgcpm", FPKM: "rawFPKM" or "lgFPKM"}
+\item{method}{Conversion method of input raw data. "vst" for count and expected count, "raw" and "logarithm" for other datatype.}
 }
 \value{
 dx a matrix like datExpr

@@ -5,16 +5,16 @@
 \title{Module-trait prepare.
 Generate the variables needed by the module-trait relationships.}
 \usage{
-getMt(phenotype, MEs_col, nSamples, moduleColors, datExpr)
+getMt(phenotype, nSamples, moduleColors, datExpr)
 }
 \arguments{
 \item{phenotype}{Phenotype matrix, with sample in row and traits in column.}
 
-\item{MEs_col}{module eigengene.}
-
 \item{moduleColors}{module to color.}
 
 \item{datExpr}{datExpr produced by 2nd step.}
+
+\item{MEs_col}{module eigengene.}
 }
 \value{
 A list contains multiple parameter for next step.

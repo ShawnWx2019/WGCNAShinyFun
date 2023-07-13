@@ -808,7 +808,7 @@ mv_outlier = function(x,y) {
   if (is.null(y)) {return(x); print("no sample were removed.")}
   out =
     x %>%
-    select(-as.character(y))
+    select(-all_of(y))
   return(out)
 }
 
@@ -865,3 +865,5 @@ iterative_out = function(g2m,rawMat,tbl,method,KME_cutoff) {
 
   return(out)
 }
+
+

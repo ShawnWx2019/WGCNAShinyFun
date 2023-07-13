@@ -5,9 +5,11 @@
 \title{remove outlier
 module membership.}
 \usage{
-iterative_out(rawMat, tbl, method, KME_cutoff)
+iterative_out(g2m, rawMat, tbl, method, KME_cutoff)
 }
 \arguments{
+\item{g2m}{dataframe label each gene with module tag.}
+
 \item{rawMat}{dataframe original expression matrix}
 
 \item{tbl}{dataframe KME table}

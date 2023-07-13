@@ -27,5 +27,17 @@ Imports:
   shinythemes,
   stringr,
   tidyverse,
-  WGCNA
-RoxygenNote: 7.1.2
+  WGCNA,
+  ape,
+  dplyr,
+  tidyr,
+  magrittr,
+  purrr,
+  plotly,
+  crayon,
+  ggdendro,
+  tibble,
+  ComplexHeatmap,
+  circlize,
+  writexl
+RoxygenNote: 7.2.3
