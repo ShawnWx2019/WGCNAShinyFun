@@ -18,6 +18,7 @@
 #' @param mergeCutHeight 'numeric'; Dynamic cutting height, clusters less than this value will be merged
 #' @param maxBlocksize 'numeric'; number of select genes, default is 9999999 means all input genes were select for next steps.
 #' @param r_cutoff 'numeric'; cutoff of module-trait correlation value r, default is 0.8
+#' @param all_kME 'numeric'; export all gene in module oreder by kme value
 #' @param weight_cutoff 'numeric'; cutoff of cytoscape weight value. default is 0.02
 #' @param pheofile 'character'; phenotyp file.
 #' @return All result of WGCNA
@@ -33,6 +34,7 @@
 #' @importFrom stringr str_remove
 #' @importFrom readr write_csv
 #' @importFrom crayon green bold italic red yellow
+#' @importFrom grid gpar
 #' @export
 
 oneStepWGCNA <- function(
@@ -43,7 +45,7 @@ oneStepWGCNA <- function(
     rscut = 0.8,
     minModuleSize = 30, mergeCutHeight = 0.25, maxBlocksize = 999999,
     r_cutoff = 0.8,weight_cutoff = 0.02,
-    pheofile
+    pheofile,all_kME = T
 ) {
   ##> 01. Parameters
   msg_yes <- green$bold$italic;
@@ -158,6 +160,7 @@ oneStepWGCNA <- function(
   path_02 = paste0(out_path,"02.ModuleTrait/")
   dir.create(path = path_02,showWarnings = F,recursive = T)
   ##> 5.1 parameters
+  save(tmp_network,file = paste0(F.path,"/WGCNA_out/tmp_network.rda"))
   MEs_col = tmp_network$net$MEs_col
   moduleColors = tmp_network$net$moduleColors
   Gene2Module = tmp_network$net$Gene2module %>% arrange(Module)
@@ -211,7 +214,7 @@ oneStepWGCNA <- function(
       cluster_rows = F, cluster_columns = F,
       left_annotation = Left_anno,
       cell_fun = function(j,i,x,y,width,height,fill) {
-        grid.text(sprintf(res_GS$textMatrix[i,j]),x,y,gp = gpar(fontsize = 12))
+        grid.text(sprintf(res_GS$textMatrix[i,j]),x,y,gp = grid::gpar(fontsize = 12))
       },
       row_names_side = "left",
       column_names_rot = 90,
@@ -222,9 +225,9 @@ oneStepWGCNA <- function(
         legend_height = unit(9, "cm"),
         title_position = "lefttop-rot"
       ),
-      rect_gp = gpar(col = "black", lwd = 1.2),
+      rect_gp = grid::gpar(col = "black", lwd = 1.2),
       column_title = "Module-trait relationships",
-      column_title_gp = gpar(fontsize = 15, fontface = "bold"),
+      column_title_gp = grid::gpar(fontsize = 15, fontface = "bold"),
       col = colorRamp2(c(-1, 0, 1), c("blue","white","red"))
     )
   draw(ht) %>% print()
@@ -247,8 +250,12 @@ oneStepWGCNA <- function(
     as.data.frame() %>%
     rownames_to_column("MODULE") %>%
     pivot_longer(!MODULE,names_to = "Cluster",values_to = "p")
-  res_GS_sig <- left_join(res_GS.r_long,res_GS.p_long) %>%
-    filter(p < 0.05 & r > r_cutoff)
+  if(isTRUE(all_kME)) {
+    res_GS_sig <- left_join(res_GS.r_long,res_GS.p_long)
+  } else {
+    res_GS_sig <- left_join(res_GS.r_long,res_GS.p_long) %>%
+      filter(p < 0.05 & r > r_cutoff)
+  }
   r.max <- res_GS.r_long %>% pull(r) %>% max
   if(ncol(res_GS_sig) == 0) {
     message(msg_no("No significant module-trait relationships detected under r cutoff: ",r_cutoff,"\n",

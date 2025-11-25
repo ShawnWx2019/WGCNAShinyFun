@@ -85,7 +85,6 @@ getdatExpr = function(rawdata,RcCutoff,samplePerc,datatype,method){
 
 getdatExpr2 = function(datExpr,GeneNumCut,cutmethod){
   datExpr <- datExpr
-  type = "unsigned"
   corType = "pearson"
   corFnc = cor
   maxPOutliers = ifelse(corType=="pearson",1,0.05)
@@ -154,6 +153,7 @@ getsampleTree = function(datExpr,layout = "circular"){
 #' Calculate the appropriate power for scale-free network construction.
 #' @param datExpr Expression data matrix generate from 2nd step.
 #' @param rscut cutoff of R2.
+#' @param type networktype
 #' @return A list contains power test detials, power and two plots which demonstrated the sft and mean connectivity.
 #' @references https://www.jianshu.com/p/e9cc3f43441d
 #' @export
@@ -163,9 +163,8 @@ getsampleTree = function(datExpr,layout = "circular"){
 #' @import patchwork
 #' @example
 #' @author Shawn Wang <url\{http://www.shawnlearnbioinfo.top}>
-getpower = function(datExpr,rscut){
+getpower = function(datExpr,rscut,type='unsigned'){
   nSamples = nrow(datExpr)
-  type = 'unsigned'
   powers = c(c(1:10), seq(from = 12, to=30, by=2))
   sft = pickSoftThreshold(datExpr, powerVector=powers, RsquaredCut = rscut,
                           networkType=type, verbose=5)
@@ -198,10 +197,10 @@ getpower = function(datExpr,rscut){
   power = sft$powerEstimate
   ## exper power
   if (is.na(power)){
-    power = ifelse(nSamples<20, ifelse(type == "unsigned", 9, 18),
-                   ifelse(nSamples<30, ifelse(type == "unsigned", 8, 16),
-                          ifelse(nSamples<40, ifelse(type == "unsigned", 7, 14),
-                                 ifelse(type == "unsigned", 6, 12))
+    power = ifelse(nSamples<20, ifelse(type == type, 9, 18),
+                   ifelse(nSamples<30, ifelse(type == type, 8, 16),
+                          ifelse(nSamples<40, ifelse(type == type, 7, 14),
+                                 ifelse(type == type, 6, 12))
                    )
     )
   }
@@ -287,6 +286,7 @@ ggscaleFreePlot = function (connectivity, nBreaks = 10, truncated = FALSE, remov
 #' @param power.test Power you want test.
 #' @param datExpr datExpr generate in second step.
 #' @param nGenes Select gene number
+#' @param type networktype
 #' @return Plot of scale-free test result
 #' @references https://www.jianshu.com/p/25905a905086 jiashu Author: sxzt
 #' @export
@@ -297,12 +297,12 @@ ggscaleFreePlot = function (connectivity, nBreaks = 10, truncated = FALSE, remov
 #' @example
 #' @author Shawn Wang <url\{http://www.shawnlearnbioinfo.top}>
 
-powertest = function(power.test,datExpr,nGenes){
+powertest = function(power.test,datExpr,nGenes,type="unsigned"){
   ## reference: https://www.jianshu.com/p/25905a905086 jiashu Author: sxzt
   softPower <- power.test
-  adjacency = adjacency(datExpr = datExpr, power = softPower)
+  adjacency = adjacency(datExpr = datExpr, power = softPower,type = type)
   # convert adj 2 TOM
-  TOM = TOMsimilarity(adjacency)
+  TOM = TOMsimilarity(adjacency,TOMType = type)
   # disTOM
   dissTOM = 1-TOM
   hierTOM = hclust(as.dist(dissTOM),method="average")
@@ -310,7 +310,7 @@ powertest = function(power.test,datExpr,nGenes){
   if(nGenes< 5000){
     k <- as.vector(apply(ADJ1_cor,2,sum,na.rm=T))
   } else {
-    k <- softConnectivity(datE=datExpr,power=softPower)
+    k <- softConnectivity(datE=datExpr,power=softPower,type = type)
   }
   k.df = data.frame(value = k)
   p1 = ggplot(k.df,mapping = aes(x = value)) +
@@ -332,6 +332,7 @@ powertest = function(power.test,datExpr,nGenes){
 #' @param minModuleSize minimal size of module.
 #' @param mergeCutHeight Dynamic cutting height, clusters less than this value will be merged
 #' @param maxBlocksize number of select genes
+#' @param type networktype
 #' @return A list contains multiple parameter for next step.
 #' @references https://www.jianshu.com/p/f0409a045dab
 #' @export
@@ -342,10 +343,10 @@ powertest = function(power.test,datExpr,nGenes){
 #' @author Shawn Wang <url\{http://www.shawnlearnbioinfo.top}>
 
 
-getnetwork = function(datExpr,power,minModuleSize,mergeCutHeight,maxBlocksize){
+getnetwork = function(datExpr,power,minModuleSize,mergeCutHeight,maxBlocksize,type="unsigned"){
   cor <- WGCNA::cor
   net = blockwiseModules(datExpr, power = power, maxBlockSize = maxBlocksize,
-                         TOMType = "unsigned", minModuleSize = minModuleSize,
+                         TOMType = type, minModuleSize = minModuleSize,
                          reassignThreshold = 0, mergeCutHeight = mergeCutHeight,
                          numericLabels = TRUE, pamRespectsDendro = FALSE,
                          saveTOMs=F, corType = 'pearson',
@@ -579,6 +580,7 @@ moduleheatmap = function(datExpr,MEs,which.module,moduleColors){
 #' @param kME.cut cutoff kME.
 #' @param datTrait trait matrix.
 #' @param g2m gene2module.
+#' @param type networktype
 #' @return A list of hubgenes.
 #' @export
 #' @import WGCNA
@@ -587,12 +589,12 @@ moduleheatmap = function(datExpr,MEs,which.module,moduleColors){
 #' @import stringr
 #' @example
 #' @author Shawn Wang <url\{http://www.shawnlearnbioinfo.top}>
-hubgenes = function(datExpr,mdl,power,trt,KME,GS.cut,kME.cut,datTrait,g2m) {
+hubgenes = function(datExpr,mdl,power,trt,KME,GS.cut,kME.cut,datTrait,g2m,type="unsigned") {
   ## changenames
   colnames(KME) = gsub("MM.","",colnames(KME))
   ## hubgene by wgcna
   hubs = chooseTopHubInEachModule(datExpr = datExpr, colorh = g2m,
-                                  power = power, type = "unsigned")
+                                  power = power, type = type)
   hub_mdl = hubs[mdl]
   ## calculate GS and MM
   MM_vs_KME = KME %>%
@@ -753,6 +755,7 @@ getverboseplot.all = function(datExpr,module,pheno,traitData,moduleColors,geneMo
 #' @param module which module you choose to observation.
 #' @param moduleColors param generated by step getnetwork.
 #' @param threshold threshold of weight
+#' @param type netwoktype
 #' @return A list contains gene module membership and Pvalue.
 #' @references https://www.jianshu.com/p/f0409a045dab
 #' @export
@@ -766,10 +769,11 @@ cytoscapeout = function(
   power = exp.ds$power,
   module = exp.ds$mdl,
   moduleColors = exp.ds$moduleColors,
-  threshold = exp.ds$threshold
+  threshold = exp.ds$threshold,
+  type = "signed"
 ){
   ##
-  TOM = TOMsimilarityFromExpr(datExpr, power = power);
+  TOM = TOMsimilarityFromExpr(datExpr, power = power,TOMType = type);
   # Select module
   module = module;
   # Select module probes

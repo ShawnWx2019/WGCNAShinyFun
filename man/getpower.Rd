@@ -5,12 +5,14 @@
 \title{SFT detection.
 Calculate the appropriate power for scale-free network construction.}
 \usage{
-getpower(datExpr, rscut)
+getpower(datExpr, rscut, type = "unsigned")
 }
 \arguments{
 \item{datExpr}{Expression data matrix generate from 2nd step.}
 
 \item{rscut}{cutoff of R2.}
+
+\item{type}{networktype}
 }
 \value{
 A list contains power test detials, power and two plots which demonstrated the sft and mean connectivity.

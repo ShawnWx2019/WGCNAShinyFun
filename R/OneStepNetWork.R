@@ -126,6 +126,11 @@ oneStepNetwork <- function(
                         dendroLabels = FALSE, hang = 0.03,
                         addGuide = TRUE, guideHang = 0.05)
     dev.off()
+    status_temp <- data.frame(
+      nSample = nrow(Step4),
+      nGene = ncol(Step4)
+    )
+    write.csv(status_temp,file = paste0(F.path,"status.csv"),row.names = F)
   }
   out = list(
     expmat = Step4,

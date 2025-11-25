@@ -5,7 +5,7 @@
 \title{Power test.
 Test scale-free of corresponding power}
 \usage{
-powertest(power.test, datExpr, nGenes)
+powertest(power.test, datExpr, nGenes, type = "unsigned")
 }
 \arguments{
 \item{power.test}{Power you want test.}
@@ -13,6 +13,8 @@ powertest(power.test, datExpr, nGenes)
 \item{datExpr}{datExpr generate in second step.}
 
 \item{nGenes}{Select gene number}
+
+\item{type}{networktype}
 }
 \value{
 Plot of scale-free test result

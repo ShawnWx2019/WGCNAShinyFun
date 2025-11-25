@@ -23,7 +23,8 @@ oneStepWGCNA(
   maxBlocksize = 999999,
   r_cutoff = 0.8,
   weight_cutoff = 0.02,
-  pheofile
+  pheofile,
+  all_kME = T
 )
 }
 \arguments{
@@ -60,6 +61,8 @@ oneStepWGCNA(
 \item{weight_cutoff}{'numeric'; cutoff of cytoscape weight value. default is 0.02}
 
 \item{pheofile}{'character'; phenotyp file.}
+
+\item{all_kME}{'numeric'; export all gene in module oreder by kme value}
 }
 \value{
 All result of WGCNA

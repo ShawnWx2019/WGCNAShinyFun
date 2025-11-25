@@ -5,7 +5,18 @@
 \title{select hubgene
 select hubgenes with GS and MM}
 \usage{
-hubgenes(datExpr, mdl, power, trt, KME, GS.cut, kME.cut, datTrait, g2m)
+hubgenes(
+  datExpr,
+  mdl,
+  power,
+  trt,
+  KME,
+  GS.cut,
+  kME.cut,
+  datTrait,
+  g2m,
+  type = "unsigned"
+)
 }
 \arguments{
 \item{datExpr}{datExpr produced by 2nd step.}
@@ -25,6 +36,8 @@ hubgenes(datExpr, mdl, power, trt, KME, GS.cut, kME.cut, datTrait, g2m)
 \item{datTrait}{trait matrix.}
 
 \item{g2m}{gene2module.}
+
+\item{type}{networktype}
 }
 \value{
 A list of hubgenes.

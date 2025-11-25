@@ -5,7 +5,14 @@
 \title{Scale-free network generation.
 By WGCNA::blockwiseModules}
 \usage{
-getnetwork(datExpr, power, minModuleSize, mergeCutHeight, maxBlocksize)
+getnetwork(
+  datExpr,
+  power,
+  minModuleSize,
+  mergeCutHeight,
+  maxBlocksize,
+  type = "unsigned"
+)
 }
 \arguments{
 \item{datExpr}{datExpr produced by 2nd step.}
@@ -17,6 +24,8 @@ getnetwork(datExpr, power, minModuleSize, mergeCutHeight, maxBlocksize)
 \item{mergeCutHeight}{Dynamic cutting height, clusters less than this value will be merged}
 
 \item{maxBlocksize}{number of select genes}
+
+\item{type}{networktype}
 }
 \value{
 A list contains multiple parameter for next step.
